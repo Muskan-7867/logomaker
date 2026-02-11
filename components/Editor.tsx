@@ -2,7 +2,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as motion from "framer-motion/client";
 import { Canvas } from "fabric";
-import IconGrid from "./IconGrid";
+import IconGrid from "./LucideIcons";
+import Hugeicons from "./Hugeicons";
+import EmojiPicker from "./Emoji";
+import { ToolButton } from "./ToolButton";
 
 type Props = {};
 
@@ -10,6 +13,9 @@ export default function Editor({}: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [canvas, setCanvas] = useState<Canvas | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeLibrary, setActiveLibrary] = useState<
+    "all" | "hugeicons" | "lucide" | "emoji"
+  >("all");
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -26,11 +32,12 @@ export default function Editor({}: Props) {
       };
     }
   }, []);
+
   return (
     <div className="relative h-screen flex flex-col bg-black pt-24 text-white">
       <div className="flex-1 flex flex-row items-stretch justify-center px-4 h-screen ">
         {/* left sidebar */}
-        <div className="w-96 bg-zinc-950 border border-white p-4 flex flex-col h-screen overflow-y-scroll sticky top-0">
+        <div className="w-96 bg-zinc-950  p-4 flex flex-col h-[calc(100vh-6rem)] overflow-y-scroll thin-scrollbar sticky top-0">
           <div className="mb-4">
             <input
               placeholder="Search icons..."
@@ -39,14 +46,95 @@ export default function Editor({}: Props) {
               className="w-full px-3 py-2 text-sm bg-zinc-900 border border-white/10 rounded outline-none"
             />
           </div>
-          <div className="flex-1  pr-2">
-            <IconGrid
-              searchQuery={searchQuery}
-              onSelect={(iconName) => {
-                console.log("Selected icon:", iconName);
-                // later: add to Fabric canvas
-              }}
-            />
+
+          <div className="flex gap-2 mb-4">
+            <button
+              onClick={() => setActiveLibrary("all")}
+              className={`px-3 py-2 rounded text-xs transition-colors border ${
+                activeLibrary === "all"
+                  ? "bg-zinc-700 border-white/20"
+                  : "bg-zinc-800 hover:bg-zinc-700 border-white/5"
+              }`}
+            >
+              All
+            </button>
+
+            <button
+              onClick={() => setActiveLibrary("lucide")}
+              className={`px-3 py-2 rounded text-xs transition-colors border ${
+                activeLibrary === "lucide"
+                  ? "bg-zinc-700 border-white/20"
+                  : "bg-zinc-800 hover:bg-zinc-700 border-white/5"
+              }`}
+            >
+              lucide
+            </button>
+            <button
+              onClick={() => setActiveLibrary("hugeicons")}
+              className={`px-3 py-2 rounded text-xs transition-colors border ${
+                activeLibrary === "hugeicons"
+                  ? "bg-zinc-700 border-white/20"
+                  : "bg-zinc-800 hover:bg-zinc-700 border-white/5"
+              }`}
+            >
+              hugeicons
+            </button>
+
+            <button
+              onClick={() => setActiveLibrary("emoji")}
+              className={`px-3 py-2 rounded text-xs transition-colors border ${
+                activeLibrary === "hugeicons"
+                  ? "bg-zinc-700 border-white/20"
+                  : "bg-zinc-800 hover:bg-zinc-700 border-white/5"
+              }`}
+            >
+              Emoji
+            </button>
+          </div>
+
+          <div className="flex-1 pr-2 space-y-6">
+            {activeLibrary === "all" && (
+              <>
+                <div>
+                  <div>
+                    <div className="text-xs text-gray-400 mb-2 uppercase">
+                      Lucide
+                    </div>
+                    <IconGrid
+                      searchQuery={searchQuery}
+                      onSelect={(iconName) => {
+                        console.log("Selected icon:", iconName);
+                      }}
+                    />
+                  </div>
+
+                  <div className="text-xs text-gray-400 mb-2 uppercase">
+                    Hugeicons
+                  </div>
+                  <Hugeicons />
+                </div>
+
+                <div>
+                  <div className="text-xs text-gray-400 mb-2 uppercase">
+                    Emoji
+                  </div>
+                  <EmojiPicker />
+                </div>
+              </>
+            )}
+
+            {activeLibrary === "hugeicons" && <Hugeicons />}
+
+            {activeLibrary === "lucide" && (
+              <IconGrid
+                searchQuery={searchQuery}
+                onSelect={(iconName) => {
+                  console.log("Selected icon:", iconName);
+                }}
+              />
+            )}
+
+            {activeLibrary === "emoji" && <EmojiPicker />}
           </div>
         </div>
 
@@ -106,29 +194,9 @@ export default function Editor({}: Props) {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );
 }
 
-const ToolButton = ({
-  label,
-  icon,
-  active = false,
-}: {
-  label: string;
-  icon: string;
-  active?: boolean;
-}) => (
-  <button
-    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded transition-colors ${
-      active
-        ? "bg-zinc-800 text-white"
-        : "text-gray-400 hover:bg-zinc-800/50 hover:text-white"
-    }`}
-  >
-    <span className="text-lg">{icon}</span>
-    <span className="text-sm">{label}</span>
-  </button>
-);
+
