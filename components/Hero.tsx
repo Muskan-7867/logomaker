@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as motion from "framer-motion/client";
 import { Canvas } from "fabric";
+import { useRouter } from "next/navigation";
 
 const Hero = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [canvas, setCanvas] = useState<Canvas | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -21,6 +23,10 @@ const Hero = () => {
       };
     }
   }, []);
+
+  const handleCreateLogo = () => {
+    router.push("/editor");
+  };
 
   return (
     <div className="relative min-h-screen flex flex-col bg-zinc-800 text-white">
@@ -45,7 +51,7 @@ const Hero = () => {
           </a>
         </div>
 
-        <button className="px-6 py-2 bg-black text-white font-semibold rounded-lg transition-colors">
+        <button onClick={handleCreateLogo} className="px-6 py-2 bg-black text-white font-semibold rounded-lg transition-colors">
           Create Logo
         </button>
       </nav>
