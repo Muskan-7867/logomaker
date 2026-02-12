@@ -6,6 +6,10 @@ import IconGrid from "./LucideIcons";
 import Hugeicons from "./Hugeicons";
 import EmojiPicker from "./Emoji";
 import { ToolButton } from "./ToolButton";
+import { loadSVGFromString, util, Textbox } from "fabric";
+import { renderToStaticMarkup } from "react-dom/server";
+import { icons } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 type Props = {};
 
@@ -32,6 +36,70 @@ export default function Editor({}: Props) {
       };
     }
   }, []);
+
+  const addIcon = (iconName: string) => {
+    if (!canvas) return;
+
+    const IconComponent = icons[iconName as keyof typeof icons];
+    if (!IconComponent) return;
+
+    const svgString = renderToStaticMarkup(<IconComponent />);
+
+    loadSVGFromString(svgString)
+      .then(({ objects, options }) => {
+        const validObjects = objects.filter((obj) => obj !== null);
+        const obj = util.groupSVGElements(validObjects as any, options);
+        obj.set({
+          left: 250,
+          top: 250,
+          originX: "center",
+          originY: "center",
+        });
+        obj.scaleToWidth(100);
+        canvas.add(obj);
+        canvas.renderAll();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const addHugeIcon = (icon: any) => {
+    if (!canvas) return;
+
+    const svgString = renderToStaticMarkup(<HugeiconsIcon icon={icon} />);
+
+    loadSVGFromString(svgString)
+      .then(({ objects, options }) => {
+        const validObjects = objects.filter((obj) => obj !== null);
+        const obj = util.groupSVGElements(validObjects as any, options);
+        obj.set({
+          left: 250,
+          top: 250,
+          originX: "center",
+          originY: "center",
+        });
+        obj.scaleToWidth(100);
+        canvas.add(obj);
+        canvas.renderAll();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const addEmoji = (emoji: string) => {
+    if (!canvas) return;
+    const text = new Textbox(emoji, {
+      left: 250,
+      top: 250,
+      originX: "center",
+      originY: "center",
+      fontSize: 100,
+    });
+    canvas.add(text);
+    canvas.renderAll();
+  };
 
   return (
     <div className="relative h-screen flex flex-col bg-black pt-24 text-white">
@@ -103,7 +171,7 @@ export default function Editor({}: Props) {
                     <IconGrid
                       searchQuery={searchQuery}
                       onSelect={(iconName) => {
-                        console.log("Selected icon:", iconName);
+                        addIcon(iconName);
                       }}
                     />
                   </div>
@@ -111,30 +179,32 @@ export default function Editor({}: Props) {
                   <div className="text-xs text-gray-400 mb-2 uppercase">
                     Hugeicons
                   </div>
-                  <Hugeicons />
+                  <Hugeicons onSelect={addHugeIcon} />
                 </div>
 
                 <div>
                   <div className="text-xs text-gray-400 mb-2 uppercase">
                     Emoji
                   </div>
-                  <EmojiPicker />
+                  <EmojiPicker onSelect={addEmoji} />
                 </div>
               </>
             )}
 
-            {activeLibrary === "hugeicons" && <Hugeicons />}
+            {activeLibrary === "hugeicons" && (
+              <Hugeicons onSelect={addHugeIcon} />
+            )}
 
             {activeLibrary === "lucide" && (
               <IconGrid
                 searchQuery={searchQuery}
                 onSelect={(iconName) => {
-                  console.log("Selected icon:", iconName);
+                  addIcon(iconName);
                 }}
               />
             )}
 
-            {activeLibrary === "emoji" && <EmojiPicker />}
+            {activeLibrary === "emoji" && <EmojiPicker onSelect={addEmoji} />}
           </div>
         </div>
 
@@ -157,7 +227,7 @@ export default function Editor({}: Props) {
                 <div className="relative">
                   <canvas
                     ref={canvasRef}
-                    className="rounded-lg shadow-2xl border border-white/10"
+                    className="rounded-lg shadow-2xl border border-white/10 text-white"
                   />
                 </div>
               </div>
@@ -198,5 +268,3 @@ export default function Editor({}: Props) {
     </div>
   );
 }
-
-

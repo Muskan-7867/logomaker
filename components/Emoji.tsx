@@ -7,7 +7,17 @@ interface Emoji {
   category: string;
 }
 
-export default function EmojiPicker() {
+interface Emoji {
+  char: string;
+  name: string;
+  category: string;
+}
+
+interface Props {
+  onSelect?: (emoji: string) => void;
+}
+
+export default function EmojiPicker({ onSelect }: Props) {
   const [emojis, setEmojis] = useState<Emoji[]>([]);
   const [search, setSearch] = useState("");
 
@@ -33,6 +43,7 @@ export default function EmojiPicker() {
         {filteredEmojis.map((emoji, index) => (
           <button
             key={index}
+            onClick={() => onSelect?.(emoji.char)}
             className="flex items-center justify-center p-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-white/10 transition "
           >
             <span style={{ fontSize: "24px" }}>{emoji.char}</span>
