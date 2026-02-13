@@ -9,9 +9,7 @@ export default function EditorPage({}: Props) {
          {/* Navbar */}
       <nav className="w-full bg-zinc-900 px-8 py-4 flex items-center justify-between border-b border-white/10 z-100 fixed top-0">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded bg-black flex items-center justify-center font-bold text-white text-sm">
-            J
-          </div>
+        
           <span className="font-semibold text-lg">Logo Maker</span>
         </div>
 
