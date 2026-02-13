@@ -1,25 +1,32 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import * as motion from "framer-motion/client";
-import { Canvas } from "fabric";
-import IconGrid from "./LucideIcons";
-import Hugeicons from "./Hugeicons";
-import EmojiPicker from "./Emoji";
-import { ToolButton } from "./ToolButton";
-import { loadSVGFromString, util, Textbox } from "fabric";
-import { renderToStaticMarkup } from "react-dom/server";
-import { icons } from "lucide-react";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { Canvas, FabricImage, IText } from "fabric";
+import EditorPreview from "./EditorPreview";
+import RightSidebar from "./RightSidebar";
+import LeftSidebar from "./LeftSidebar";
+import {
+
+  Rect,
+  Circle,
+  Triangle,
+  Line,
+} from "fabric";
+
 
 type Props = {};
+type IconSettings = {
+   size: number;
+   color: string;
+   rotate: number;
+   strokeWidth: number;
+   strokeOpacity: number;
+}
 
 export default function Editor({}: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [canvas, setCanvas] = useState<Canvas | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeLibrary, setActiveLibrary] = useState<
-    "all" | "hugeicons" | "lucide" | "emoji"
-  >("all");
+  const fabricRef = useRef<Canvas | null>(null);
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -27,7 +34,7 @@ export default function Editor({}: Props) {
         width: 500,
         height: 500,
       });
-
+      fabricRef.current = initCanvas;
       initCanvas.backgroundColor = "#18181B";
       initCanvas.renderAll();
       setCanvas(initCanvas);
@@ -37,233 +44,126 @@ export default function Editor({}: Props) {
     }
   }, []);
 
-  const addIcon = (iconName: string) => {
-    if (!canvas) return;
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !fabricRef) return;
 
-    const IconComponent = icons[iconName as keyof typeof icons];
-    if (!IconComponent) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const image = reader.result as string;
 
-    const svgString = renderToStaticMarkup(<IconComponent />);
+      FabricImage.fromURL(image).then((img) => {
+        const canvas = fabricRef.current!;
+        // 🔹 Auto scale to fit inside canvas
+        const maxWidth = canvas.getWidth() * 0.8;
+        const maxHeight = canvas.getHeight() * 0.8;
+        const scale = Math.min(maxWidth / img.width!, maxHeight / img.height!);
 
-    loadSVGFromString(svgString)
-      .then(({ objects, options }) => {
-        const validObjects = objects.filter((obj) => obj !== null);
-        const obj = util.groupSVGElements(validObjects as any, options);
-        obj.set({
-          left: 250,
-          top: 250,
+        img.scale(scale);
+        // 🔹 Center the image
+        const center = canvas.getCenterPoint();
+
+        img.set({
+          left: center.x,
+          top: center.y,
           originX: "center",
           originY: "center",
         });
-        obj.scaleToWidth(100);
-        canvas.add(obj);
+
+
+
+        canvas.add(img);
+        canvas.setActiveObject(img);
         canvas.renderAll();
-      })
-      .catch((err) => {
-        console.log(err);
       });
+    };
+
+    reader.readAsDataURL(file);
   };
 
-  const addHugeIcon = (icon: any) => {
-    if (!canvas) return;
+  // Handle tool change
+  const handleToolChange = (tool: string) => {
+    if (!fabricRef.current) return;
 
-    const svgString = renderToStaticMarkup(<HugeiconsIcon icon={icon} />);
+    const canvas = fabricRef.current;
+     const center = canvas.getCenterPoint();
 
-    loadSVGFromString(svgString)
-      .then(({ objects, options }) => {
-        const validObjects = objects.filter((obj) => obj !== null);
-        const obj = util.groupSVGElements(validObjects as any, options);
-        obj.set({
-          left: 250,
-          top: 250,
-          originX: "center",
-          originY: "center",
-        });
-        obj.scaleToWidth(100);
-        canvas.add(obj);
-        canvas.renderAll();
-      })
-      .catch((err) => {
-        console.log(err);
+    if (tool === "text") {
+      const text = new IText("Your Brand", {
+        left: 200,
+        top: 200,
+        fill: "#ffffff",
+        fontSize: 40,
+        fontFamily: "Arial",
       });
-  };
 
-  const addEmoji = (emoji: string) => {
-    if (!canvas) return;
-    const text = new Textbox(emoji, {
-      left: 250,
-      top: 250,
+      canvas.add(text);
+      canvas.setActiveObject(text);
+      canvas.renderAll();
+    }
+    // ✅ Trigger file input for image
+    if (tool === "image") {
+      fileInputRef.current?.click();
+    }
+
+             // SHAPE
+  if (tool === "shape") {
+    // 🔹 Default shape (Rectangle)
+    const rect = new Rect({
+      width: 150,
+      height: 100,
+      fill: "#3b82f6",
+      left: center.x,
+      top: center.y,
       originX: "center",
       originY: "center",
-      fontSize: 100,
+      rx: 10, // rounded corners
+      ry: 10,
     });
-    canvas.add(text);
+     canvas.add(rect);
+    canvas.setActiveObject(rect);
+    canvas.renderAll();
+  }
+
+  };
+
+  const handleIconSettingsChange = (settings: IconSettings) => {
+    const canvas = fabricRef.current;
+    if (!canvas) return;
+    const activeObject = canvas.getActiveObject();
+    if (!activeObject) return;
+
+    activeObject.set({
+      scaleX: settings.size / 100,
+      scaleY: settings.size / 100,
+      angle: settings.rotate,
+      strokeWidth: settings.strokeWidth,
+      stroke: settings.color,
+      opacity: settings.strokeOpacity,
+    });
+
     canvas.renderAll();
   };
 
   return (
-    <div className="relative h-screen flex flex-col bg-black pt-24 text-white">
+    <div className="relative h-screen flex flex-col  pt-24 text-white">
       <div className="flex-1 flex flex-row items-stretch justify-center px-4 h-screen ">
         {/* left sidebar */}
-        <div className="w-96 bg-zinc-950  p-4 flex flex-col h-[calc(100vh-6rem)] overflow-y-scroll thin-scrollbar sticky top-0">
-          <div className="mb-4">
-            <input
-              placeholder="Search icons..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-3 py-2 text-sm bg-zinc-900 border border-white/10 rounded outline-none"
-            />
-          </div>
-
-          <div className="flex gap-2 mb-4">
-            <button
-              onClick={() => setActiveLibrary("all")}
-              className={`px-3 py-2 rounded text-xs transition-colors border ${
-                activeLibrary === "all"
-                  ? "bg-zinc-700 border-white/20"
-                  : "bg-zinc-800 hover:bg-zinc-700 border-white/5"
-              }`}
-            >
-              All
-            </button>
-
-            <button
-              onClick={() => setActiveLibrary("lucide")}
-              className={`px-3 py-2 rounded text-xs transition-colors border ${
-                activeLibrary === "lucide"
-                  ? "bg-zinc-700 border-white/20"
-                  : "bg-zinc-800 hover:bg-zinc-700 border-white/5"
-              }`}
-            >
-              lucide
-            </button>
-            <button
-              onClick={() => setActiveLibrary("hugeicons")}
-              className={`px-3 py-2 rounded text-xs transition-colors border ${
-                activeLibrary === "hugeicons"
-                  ? "bg-zinc-700 border-white/20"
-                  : "bg-zinc-800 hover:bg-zinc-700 border-white/5"
-              }`}
-            >
-              hugeicons
-            </button>
-
-            <button
-              onClick={() => setActiveLibrary("emoji")}
-              className={`px-3 py-2 rounded text-xs transition-colors border ${
-                activeLibrary === "hugeicons"
-                  ? "bg-zinc-700 border-white/20"
-                  : "bg-zinc-800 hover:bg-zinc-700 border-white/5"
-              }`}
-            >
-              Emoji
-            </button>
-          </div>
-
-          <div className="flex-1 pr-2 space-y-6">
-            {activeLibrary === "all" && (
-              <>
-                <div>
-                  <div>
-                    <div className="text-xs text-gray-400 mb-2 uppercase">
-                      Lucide
-                    </div>
-                    <IconGrid
-                      searchQuery={searchQuery}
-                      onSelect={(iconName) => {
-                        addIcon(iconName);
-                      }}
-                    />
-                  </div>
-
-                  <div className="text-xs text-gray-400 mb-2 uppercase">
-                    Hugeicons
-                  </div>
-                  <Hugeicons onSelect={addHugeIcon} />
-                </div>
-
-                <div>
-                  <div className="text-xs text-gray-400 mb-2 uppercase">
-                    Emoji
-                  </div>
-                  <EmojiPicker onSelect={addEmoji} />
-                </div>
-              </>
-            )}
-
-            {activeLibrary === "hugeicons" && (
-              <Hugeicons onSelect={addHugeIcon} />
-            )}
-
-            {activeLibrary === "lucide" && (
-              <IconGrid
-                searchQuery={searchQuery}
-                onSelect={(iconName) => {
-                  addIcon(iconName);
-                }}
-              />
-            )}
-
-            {activeLibrary === "emoji" && <EmojiPicker onSelect={addEmoji} />}
-          </div>
-        </div>
+        <LeftSidebar canvas={canvas} />
 
         {/* Editor Preview */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.3 }}
-          className="w-full max-w-6xl"
-        >
-          <div className="overflow-hidden">
-            {/* Editor Body */}
-            <div className="flex">
-              {/* Canvas Area */}
-              <div className="flex-1  relative flex items-center justify-center p-8 min-h-[500px]">
-                {/* Grid Background */}
-                <div className="absolute inset-0  " />
-
-                {/* Canvas */}
-                <div className="relative">
-                  <canvas
-                    ref={canvasRef}
-                    className="rounded-lg shadow-2xl border border-white/10 text-white"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
+        <EditorPreview canvasRef={canvasRef} />
 
         {/* Right Sidebar */}
-        <div className="w-64 bg-zinc-950 border-r border-white/10 p-4">
-          <div className="space-y-2">
-            <div className="text-xs text-gray-500 uppercase font-semibold mb-3">
-              Brand Name
-            </div>
-            <div className="grid grid-cols-2 gap-2 mb-6">
-              <button className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded text-xs transition-colors border border-white/5">
-                Logo
-              </button>
-              <button className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded text-xs transition-colors border border-white/5">
-                Icon
-              </button>
-              <button className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded text-xs transition-colors border border-white/5">
-                Symbol
-              </button>
-              <button className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded text-xs transition-colors border border-white/5">
-                Text
-              </button>
-            </div>
-
-            <div className="space-y-3 pt-4 border-t border-white/10">
-              <ToolButton label="Text" icon="A" active />
-              <ToolButton label="Shape" icon="◆" />
-              <ToolButton label="Icon" icon="★" />
-              <ToolButton label="Image" icon="⬜" />
-            </div>
-          </div>
-        </div>
+        <RightSidebar onToolChange={handleToolChange}  onIconSettingsChange={handleIconSettingsChange}/>
+        {/* Hidden File Input */}
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          onChange={handleImageUpload}
+          className="hidden"
+        />
       </div>
     </div>
   );
