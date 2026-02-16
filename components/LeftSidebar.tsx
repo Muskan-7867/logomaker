@@ -9,25 +9,24 @@ import { icons } from "lucide-react";
 import { HugeiconsIcon } from "@hugeicons/react";
 
 type Props = {
-    canvas: Canvas | null
+  canvas: Canvas | null;
 };
 
-function LeftSidebar({canvas}: Props) {
+function LeftSidebar({ canvas }: Props) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeLibrary, setActiveLibrary] = useState<
     "all" | "hugeicons" | "lucide" | "emoji"
   >("all");
 
-  
-    const removeExistingIcon = () => {
-      if (!canvas) return;
-      const objects = canvas.getObjects();
-      const existingIcon = objects.find((obj: any) => obj.id === "main-icon");
-      if (existingIcon) {
-        canvas.remove(existingIcon);
-      }
-    };
-  
+  const removeExistingIcon = () => {
+    if (!canvas) return;
+    const objects = canvas.getObjects();
+    const existingIcon = objects.find((obj: any) => obj.id === "main-icon");
+    if (existingIcon) {
+      canvas.remove(existingIcon);
+    }
+  };
+
   const addIcon = (iconName: string) => {
     if (!canvas) return;
 
@@ -42,12 +41,24 @@ function LeftSidebar({canvas}: Props) {
         const validObjects = objects.filter((obj) => obj !== null);
         const obj = util.groupSVGElements(validObjects as any, options);
         obj.set({
-          left: 250,
-          top: 250,
+          left: canvas.getWidth() / 2,
+          top: canvas.getHeight() / 2,
           originX: "center",
           originY: "center",
-          id: "main-icon", // Tag as main icon
-        } as any); // Cast to any to avoid TS error on custom id property
+          id: "main-icon",
+
+          // 🔒 Lock everything
+          selectable: false,
+          evented: false,
+          hasControls: false,
+          hasBorders: false,
+          lockMovementX: true,
+          lockMovementY: true,
+          lockScalingX: true,
+          lockScalingY: true,
+          lockRotation: true,
+        } as any);
+
         obj.scaleToWidth(100);
 
         // Ensure stroke is white for Lucide icons
@@ -77,12 +88,24 @@ function LeftSidebar({canvas}: Props) {
         const validObjects = objects.filter((obj) => obj !== null);
         const obj = util.groupSVGElements(validObjects as any, options);
         obj.set({
-          left: 250,
-          top: 250,
+          left: canvas.getWidth() / 2,
+          top: canvas.getHeight() / 2,
           originX: "center",
           originY: "center",
           id: "main-icon",
+
+          // 🔒 Lock everything
+          selectable: false,
+          evented: false,
+          hasControls: false,
+          hasBorders: false,
+          lockMovementX: true,
+          lockMovementY: true,
+          lockScalingX: true,
+          lockScalingY: true,
+          lockRotation: true,
         } as any);
+
         obj.scaleToWidth(100);
 
         // Explicitly set fill/stroke to white for children just in case
@@ -104,26 +127,29 @@ function LeftSidebar({canvas}: Props) {
     if (!canvas) return;
     removeExistingIcon(); // Remove previous icon
     const text = new Textbox(emoji, {
-      left: 250,
-      top: 250,
-      originX: "center",
-      originY: "center",
-      fontSize: 100,
-      fill: "white", // Emoji might count as text color? actually emojis have their own colors usually.
-      // Wait, standard emojis are colored by the font/system.
-      // If user wants "white" emojis, they might mean monochrome.
-      // But standard emojis (😀) are multi-colored.
-      // Setting 'fill' on a Textbox with emoji usually doesn't change the emoji color in modern browsers/OS unless it's a monochrome symbol.
-      // If the user wants "white color icon", they probably mean for the vector icons. Emojis might be an exception or they want them strictly white (which is hard for standard emojis).
-      // I'll stick to setting 'id' for now.
-      id: "main-icon",
+     left: canvas.getWidth() / 2,
+          top: canvas.getHeight() / 2,
+          originX: "center",
+          originY: "center",
+          id: "main-icon",
+
+          // 🔒 Lock everything
+          selectable: false,
+          evented: false,
+          hasControls: false,
+          hasBorders: false,
+          lockMovementX: true,
+          lockMovementY: true,
+          lockScalingX: true,
+          lockScalingY: true,
+          lockRotation: true,
     } as any);
     canvas.add(text);
     canvas.renderAll();
   };
 
   return (
-    <div className="w-96 bg-zinc-950  p-4 flex flex-col h-[calc(100vh-6rem)] overflow-y-scroll thin-scrollbar sticky top-0">
+    <div className="w-96 bg-zinc-950 h-[50rem]  p-4 flex flex-col  overflow-y-scroll thin-scrollbar sticky top-0">
       <div className="mb-4">
         <input
           placeholder="Search icons..."
