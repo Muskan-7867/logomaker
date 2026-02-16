@@ -29,13 +29,10 @@ const Hero = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-zinc-800 text-white">
+    <div className="relative min-h-screen flex flex-col  text-white">
       {/* Navbar */}
       <nav className="w-full px-8 py-4 flex items-center justify-between border-b border-white/10 relative z-50">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded bg-black flex items-center justify-center font-bold text-white text-sm">
-            J
-          </div>
           <span className="font-semibold text-lg">Logo Maker</span>
         </div>
 
@@ -108,9 +105,7 @@ const Hero = () => {
             {/* Editor Header */}
             <div className="flex items-center justify-between px-6 py-3 border-b border-white/10 bg-zinc-900/50">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 bg-black rounded flex items-center justify-center font-bold text-white text-xs">
-                  J
-                </div>
+             
                 <span className="font-semibold text-sm">Just Logo</span>
               </div>
 

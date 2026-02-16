@@ -1,4 +1,5 @@
 "use client";
+import Editor from "@/components/Editor";
 import Hero from "@/components/Hero";
 import { Canvas } from "fabric";
 import { useEffect, useRef, useState } from "react";
@@ -24,6 +25,9 @@ export default function Home() {
   // }, []);
 
   return (
-   <Hero />
+   <>
+   <Editor/>
+   </>
+  
   );
 }
