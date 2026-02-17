@@ -20,9 +20,7 @@ function EditorPreview({ canvasRef, backgroundType, selectedGradient }: Props) {
           {/* Canvas Area */}
           <div className="flex-1 relative flex items-center justify-center h-screen">
             {/* Canvas */}
-            <div
-              className={`relative rounded-lg overflow-hidden ${backgroundType === "gradient" ? selectedGradient : ""}`}
-            >
+            <div className="relative rounded-lg overflow-hidden">
               <canvas
                 ref={canvasRef}
                 className=" shadow-2xl border border-white/10 text-white"
