@@ -5,8 +5,12 @@ import EditorPreview from "./EditorPreview";
 import RightSidebar from "./RightSidebar";
 import LeftSidebar from "./LeftSidebar";
 import { Rect, Circle, Triangle, Line } from "fabric";
+import * as fabric from "fabric";
+import { bgGradients } from "./gradients";
 
-type Props = {};
+type Props = {
+  onCanvasReady?: (canvas: Canvas) => void;
+};
 type IconSettings = {
   size: number;
   color: string;
@@ -17,7 +21,44 @@ type IconSettings = {
   selectedGradient: string;
 };
 
-export default function Editor({}: Props) {
+// Helper function to convert gradient classes to Fabric.js color stops
+const getGradientColors = (gradientClass: string) => {
+  // Find the gradient from bgGradients by className
+  const gradientDef = bgGradients.find((g) => g.className === gradientClass);
+
+  if (!gradientDef) {
+    // Fallback to first gradient if not found
+    return parseGradientString(bgGradients[0].background);
+  }
+
+  return parseGradientString(gradientDef.background);
+};
+
+// Parse CSS linear-gradient string to Fabric.js color stops
+const parseGradientString = (
+  gradientStr: string,
+): Array<{ offset: number; color: string }> => {
+  // Extract color stops from the gradient string
+  // Format: "#color percentage%"
+  const colorStopRegex = /#[0-9a-fA-F]{6}\s+[\d.]+%/g;
+  const matches = gradientStr.match(colorStopRegex);
+
+  if (!matches) {
+    // Fallback if parsing fails
+    return [
+      { offset: 0, color: "#a9caff" },
+      { offset: 1, color: "#ffbaec" },
+    ];
+  }
+
+  return matches.map((match) => {
+    const [color, percentage] = match.trim().split(/\s+/);
+    const offset = parseFloat(percentage) / 100;
+    return { offset, color };
+  });
+};
+
+export default function Editor({ onCanvasReady }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [canvas, setCanvas] = useState<Canvas | null>(null);
@@ -34,11 +75,12 @@ export default function Editor({}: Props) {
       initCanvas.backgroundColor = "#18181B";
       initCanvas.renderAll();
       setCanvas(initCanvas);
+      onCanvasReady?.(initCanvas);
       return () => {
         initCanvas.dispose();
       };
     }
-  }, []);
+  }, [onCanvasReady]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -94,7 +136,19 @@ export default function Editor({}: Props) {
     // If Background is selected
     if (activeTool === "Background") {
       if (settings.backgroundType === "gradient") {
-        canvas.backgroundColor = ""; // Clear background color
+        // Apply Fabric.js gradient instead of CSS
+        const gradientColors = getGradientColors(settings.selectedGradient);
+        const gradient = new fabric.Gradient({
+          type: "linear",
+          coords: {
+            x1: 0,
+            y1: 0,
+            x2: canvas.width || 500,
+            y2: canvas.height || 500,
+          },
+          colorStops: gradientColors,
+        });
+        canvas.backgroundColor = gradient;
       } else {
         canvas.backgroundColor = settings.color;
       }
@@ -224,8 +278,28 @@ export default function Editor({}: Props) {
     }
   };
 
+  const downloadLogo = () => {
+    const canvas = fabricRef.current;
+    if (!canvas) return;
+
+    // Get data URL from canvas
+    const dataURL = canvas.toDataURL({
+      format: "png",
+      quality: 1,
+      multiplier: 2, // Export at 2x resolution (1000x1000)
+    });
+
+    // Create a temporary link element to trigger download
+    const link = document.createElement("a");
+    link.download = `logo-${Date.now()}.png`;
+    link.href = dataURL;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
-    <div className="relative h-screen flex flex-col  pt-12  text-white">
+    <div className="relative h-screen flex flex-col   pt-4   text-white">
       <div className="flex-1 flex flex-row items-stretch justify-center px-4 h-screen ">
         {/* left sidebar */}
         <LeftSidebar canvas={canvas} />
