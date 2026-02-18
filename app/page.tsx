@@ -1,33 +1,17 @@
 "use client";
+import DownloadButton from "@/components/DownloadButton";
 import Editor from "@/components/Editor";
 import Hero from "@/components/Hero";
 import { Canvas } from "fabric";
 import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
-  // const canvasRef = useRef(null);
-  // const [canvas, setCanvas] = useState(null);
-
-  // useEffect(() => {
-  //   if (canvasRef.current) {
-  //     const initCanvas = new Canvas(canvasRef.current, {
-  //       width: 500,
-  //       height: 500
-  //     });
-
-  //     initCanvas.backgroundColor = "#fff";
-  //     initCanvas.renderAll();
-  //     setCanvas(initCanvas);
-  //     return () => {
-  //       initCanvas.dispose();
-  //     };
-  //   }
-  // }, []);
+  const [canvas, setCanvas] = useState<Canvas | null>(null);
 
   return (
-   <>
-   <Editor/>
-   </>
-  
+    <>
+      <DownloadButton canvas={canvas} />
+      <Editor onCanvasReady={setCanvas} />
+    </>
   );
 }
