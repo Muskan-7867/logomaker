@@ -85,11 +85,20 @@ function RightSidebar({
           )}
 
           {activeTool !== "Background" && (
+            <>
+            
             <IconSettingsPage
               iconSettings={iconSettings}
               updateIconSetting={updateIconSetting}
             />
+            <ColorPicker
+                color={iconSettings.color}
+                onChange={(color) => updateIconSetting("color", color)}
+              />
+              </>
           )}
+
+             
 
           {/* Advanced Color Picker */}
           {!(
@@ -97,15 +106,11 @@ function RightSidebar({
             iconSettings.backgroundType === "gradient"
           ) && (
             <div className="pt-8">
-              <label className="text-xs text-gray-500 uppercase font-semibold block mb-4">
-                {activeTool === "Background"
-                  ? "Background Color"
-                  : "Stroke Color"}
-              </label>
-              <ColorPicker
+             
+              {/* <ColorPicker
                 color={iconSettings.color}
                 onChange={(color) => updateIconSetting("color", color)}
-              />
+              /> */}
             </div>
           )}
         </div>
