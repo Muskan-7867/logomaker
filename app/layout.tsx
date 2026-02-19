@@ -28,7 +28,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {/* Background Pattern Container */}
-        <div className="h-screen w-full bg-black relative">
+        <div className="h-screen w-full bg-black relative p-4">
           {/* Black Grid with White Dots Background */}
           <div
             className="absolute inset-0 z-0"

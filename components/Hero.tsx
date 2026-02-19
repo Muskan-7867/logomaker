@@ -24,10 +24,6 @@ const Hero = () => {
     }
   }, []);
 
-  const handleCreateLogo = () => {
-    router.push("/editor");
-  };
-
   return (
     <div className="relative min-h-screen flex flex-col  text-white">
       {/* Navbar */}
@@ -48,9 +44,7 @@ const Hero = () => {
           </a>
         </div>
 
-        <button onClick={handleCreateLogo} className="px-6 py-2 bg-black text-white font-semibold rounded-lg transition-colors">
-          Create Logo
-        </button>
+  
       </nav>
 
       {/* Hero Section */}
@@ -105,7 +99,6 @@ const Hero = () => {
             {/* Editor Header */}
             <div className="flex items-center justify-between px-6 py-3 border-b border-white/10 bg-zinc-900/50">
               <div className="flex items-center gap-2">
-             
                 <span className="font-semibold text-sm">Just Logo</span>
               </div>
 
