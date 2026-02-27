@@ -7,11 +7,12 @@ import LeftSidebar from "./LeftSidebar";
 import { Rect, Circle, Triangle, Line } from "fabric";
 import * as fabric from "fabric";
 import { bgGradients } from "./gradients";
-import { LayoutGrid, Edit3, Settings2 } from "lucide-react";
 
 type Props = {
   onCanvasReady?: (canvas: Canvas) => void;
 };
+type ShapeType = "rectangle" | "circle" | "triangle" | "line";
+
 type IconSettings = {
   size: number;
   color: string;
@@ -68,8 +69,8 @@ export default function Editor({ onCanvasReady }: Props) {
   useEffect(() => {
     if (canvasRef.current) {
       const initCanvas = new Canvas(canvasRef.current, {
-        width: 500,
-        height: 500,
+        width: 350,
+        height: 350,
         hasControls: false,
       });
       fabricRef.current = initCanvas;
@@ -220,6 +221,15 @@ export default function Editor({ onCanvasReady }: Props) {
 
     canvas.requestRenderAll();
   };
+  const removeExistingIcon = () => {
+    const canvas = fabricRef.current;
+    if (!canvas) return;
+    const objects = canvas.getObjects();
+    const existingIcon = objects.find((obj: any) => obj.id === "main-icon");
+    if (existingIcon) {
+      canvas.remove(existingIcon);
+    }
+  };
 
   // Handle tool change
   const handleToolChange = (tool: string) => {
@@ -254,6 +264,7 @@ export default function Editor({ onCanvasReady }: Props) {
 
     // SHAPE
     if (tool === "shape") {
+      removeExistingIcon();
       // 🔹 Default shape (Rectangle)
       const rect = new Rect({
         width: 150,
@@ -268,6 +279,7 @@ export default function Editor({ onCanvasReady }: Props) {
         rx: 10, // rounded corners
         ry: 10,
         hasControls: false,
+        id: "main-icon",
         scaleX: iconSettings.size / 100,
         scaleY: iconSettings.size / 100,
         angle: iconSettings.rotate,
@@ -278,32 +290,75 @@ export default function Editor({ onCanvasReady }: Props) {
       canvas.renderAll();
     }
   };
+  const addShapeToCanvas = (shape: ShapeType) => {
+    if (!fabricRef.current) return;
 
-  const downloadLogo = () => {
     const canvas = fabricRef.current;
-    if (!canvas) return;
+    const center = canvas.getCenterPoint();
+    let shapeObject;
 
-    // Get data URL from canvas
-    const dataURL = canvas.toDataURL({
-      format: "png",
-      quality: 1,
-      multiplier: 2, // Export at 2x resolution (1000x1000)
+    switch (shape) {
+      case "rectangle":
+        shapeObject = new Rect({
+          width: 150,
+          height: 100,
+          rx: 10,
+          ry: 10,
+        });
+        break;
+
+      case "circle":
+        shapeObject = new Circle({
+          radius: 60,
+        });
+        break;
+
+      case "triangle":
+        shapeObject = new Triangle({
+          width: 120,
+          height: 120,
+        });
+        break;
+
+      case "line":
+        shapeObject = new Line([0, 0, 150, 0]);
+        break;
+
+      default:
+        return;
+    }
+
+    shapeObject.set({
+      left: center.x,
+      top: center.y,
+      originX: "center",
+      originY: "center",
+      fill: iconSettings.color,
+      stroke: iconSettings.color,
+      strokeWidth: iconSettings.strokeWidth,
+      scaleX: iconSettings.size / 100,
+      scaleY: iconSettings.size / 100,
+      angle: iconSettings.rotate,
+      opacity: iconSettings.strokeOpacity,
+      hasControls: false,
+      id: "main-icon",
     });
 
-    // Create a temporary link element to trigger download
-    const link = document.createElement("a");
-    link.download = `logo-${Date.now()}.png`;
-    link.href = dataURL;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    removeExistingIcon();
+
+    canvas.add(shapeObject);
+    canvas.setActiveObject(shapeObject);
+    canvas.renderAll();
   };
 
+  const handleShapeSelect = (shape: ShapeType) => {
+    addShapeToCanvas(shape);
+  };
   return (
-    <div className="relative h-screen flex flex-col pt-4 text-white overflow-y-auto lg:overflow-hidden thin-scrollbar">
-      <div className="flex-1 flex flex-col lg:flex-row items-stretch justify-center px-4 min-h-full">
+    <div className="relative h-screen flex flex-col pt-2 text-white overflow-y-auto lg:overflow-hidden thin-scrollbar">
+      <div className="flex-1 flex flex-col lg:flex-row items-stretch justify-center px-2 lg:px-4 min-h-full">
         {/* left sidebar - Top on mobile */}
-        <div className="w-full mt-[50rem] lg:mt-0 lg:w-96 order-1 lg:order-none">
+        <div className="w-full mt-[34rem] lg:mt-0 lg:w-96 order-1 lg:order-none">
           <LeftSidebar canvas={canvas} />
         </div>
 
@@ -317,10 +372,11 @@ export default function Editor({ onCanvasReady }: Props) {
         </div>
 
         {/* Right Sidebar - Bottom on mobile */}
-        <div className="w-full lg:w-88 order-3 lg:order-0 mb-12 lg:mb-0">
+        <div className="w-full lg:w-88 order-3 lg:order-0 mb-4 lg:mb-0">
           <RightSidebar
             onToolChange={handleToolChange}
             iconSettings={iconSettings}
+            onShapeSelect={handleShapeSelect}
             onIconSettingsChange={updateIconSetting}
             activeTool={activeTool as any}
           />

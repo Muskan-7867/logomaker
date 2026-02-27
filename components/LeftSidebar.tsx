@@ -149,7 +149,7 @@ function LeftSidebar({ canvas }: Props) {
   };
 
   return (
-    <div className="w-full h-[350px] lg:w-96  lg:h-200 bg-zinc-950 p-4 flex flex-col overflow-y-auto lg:overflow-y-scroll thin-scrollbar sticky top-0 pb-4">
+    <div className="w-full h-[340px] lg:w-96  lg:h-200 bg-zinc-950 p-4 flex flex-col overflow-y-auto lg:overflow-y-scroll thin-scrollbar sticky top-0 pb-4">
       <div className="mb-4">
         <input
           placeholder="Search icons..."

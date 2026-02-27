@@ -27,7 +27,7 @@ export default function IconGrid({
           title={name}
           className="flex items-center justify-center p-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-white/10 transition "
         >
-          <Icon className="w-6 h-6 text-white" />
+          <Icon className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
     
         </button>
 
