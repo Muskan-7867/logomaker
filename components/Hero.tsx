@@ -43,8 +43,6 @@ const Hero = () => {
             How It Works
           </a>
         </div>
-
-  
       </nav>
 
       {/* Hero Section */}
@@ -56,11 +54,11 @@ const Hero = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16 max-w-4xl"
         >
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+          <h1 className="text-4xl md:text-7xl font-bold mb-6 leading-tight">
             Don't let logo creation{" "}
             <span className="text-white">hold you back.</span>
           </h1>
-          <p className="text-gray-400 text-lg md:text-xl mb-8 max-w-2xl mx-auto">
+          <p className="text-gray-400 text-sm md:text-xl mb-8 max-w-2xl mx-auto px-4">
             Choose from thousands of icon sets to design your own unique logo.
             <br />
             No coding required, completely free and open source.

@@ -7,6 +7,7 @@ import LeftSidebar from "./LeftSidebar";
 import { Rect, Circle, Triangle, Line } from "fabric";
 import * as fabric from "fabric";
 import { bgGradients } from "./gradients";
+import { LayoutGrid, Edit3, Settings2 } from "lucide-react";
 
 type Props = {
   onCanvasReady?: (canvas: Canvas) => void;
@@ -299,25 +300,32 @@ export default function Editor({ onCanvasReady }: Props) {
   };
 
   return (
-    <div className="relative h-screen flex flex-col   pt-4   text-white">
-      <div className="flex-1 flex flex-row items-stretch justify-center px-4 h-screen ">
-        {/* left sidebar */}
-        <LeftSidebar canvas={canvas} />
+    <div className="relative h-screen flex flex-col pt-4 text-white overflow-y-auto lg:overflow-hidden thin-scrollbar">
+      <div className="flex-1 flex flex-col lg:flex-row items-stretch justify-center px-4 min-h-full">
+        {/* left sidebar - Top on mobile */}
+        <div className="w-full mt-[50rem] lg:mt-0 lg:w-96 order-1 lg:order-none">
+          <LeftSidebar canvas={canvas} />
+        </div>
 
-        {/* Editor Preview */}
-        <EditorPreview
-          canvasRef={canvasRef}
-          backgroundType={iconSettings.backgroundType}
-          selectedGradient={iconSettings.selectedGradient}
-        />
+        {/* Editor Preview - Center on mobile */}
+        <div className="flex-1 w-full order-2 lg:order-none">
+          <EditorPreview
+            canvasRef={canvasRef}
+            backgroundType={iconSettings.backgroundType}
+            selectedGradient={iconSettings.selectedGradient}
+          />
+        </div>
 
-        {/* Right Sidebar */}
-        <RightSidebar
-          onToolChange={handleToolChange}
-          iconSettings={iconSettings}
-          onIconSettingsChange={updateIconSetting}
-          activeTool={activeTool as any}
-        />
+        {/* Right Sidebar - Bottom on mobile */}
+        <div className="w-full lg:w-88 order-3 lg:order-0 mb-12 lg:mb-0">
+          <RightSidebar
+            onToolChange={handleToolChange}
+            iconSettings={iconSettings}
+            onIconSettingsChange={updateIconSetting}
+            activeTool={activeTool as any}
+          />
+        </div>
+
         {/* Hidden File Input */}
         <input
           type="file"

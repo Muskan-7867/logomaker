@@ -41,7 +41,7 @@ function RightSidebar({
   };
 
   return (
-    <div className="w-88 h-[50rem] bg-zinc-950 border-r border-white/10 p-4 overflow-y-scroll thin-scrollbar sticky top-0 flex flex-col">
+    <div className="w-full h-auto lg:w-88 lg:h-200 bg-zinc-950 border-r border-white/10 p-4 overflow-y-auto lg:overflow-y-scroll thin-scrollbar sticky top-0 flex flex-col pb-4">
       <div className="space-y-6 flex-1">
         {/* Tool Buttons */}
         <div className="space-y-1  grid grid-cols-2 gap-2">
@@ -86,19 +86,16 @@ function RightSidebar({
 
           {activeTool !== "Background" && (
             <>
-            
-            <IconSettingsPage
-              iconSettings={iconSettings}
-              updateIconSetting={updateIconSetting}
-            />
-            <ColorPicker
+              <IconSettingsPage
+                iconSettings={iconSettings}
+                updateIconSetting={updateIconSetting}
+              />
+              <ColorPicker
                 color={iconSettings.color}
                 onChange={(color) => updateIconSetting("color", color)}
               />
-              </>
+            </>
           )}
-
-             
 
           {/* Advanced Color Picker */}
           {!(
@@ -106,7 +103,6 @@ function RightSidebar({
             iconSettings.backgroundType === "gradient"
           ) && (
             <div className="pt-8">
-             
               {/* <ColorPicker
                 color={iconSettings.color}
                 onChange={(color) => updateIconSetting("color", color)}
@@ -115,8 +111,6 @@ function RightSidebar({
           )}
         </div>
       </div>
-
-    
     </div>
   );
 }

@@ -127,29 +127,29 @@ function LeftSidebar({ canvas }: Props) {
     if (!canvas) return;
     removeExistingIcon(); // Remove previous icon
     const text = new Textbox(emoji, {
-     left: canvas.getWidth() / 2,
-          top: canvas.getHeight() / 2,
-          originX: "center",
-          originY: "center",
-          id: "main-icon",
+      left: canvas.getWidth() / 2,
+      top: canvas.getHeight() / 2,
+      originX: "center",
+      originY: "center",
+      id: "main-icon",
 
-          // 🔒 Lock everything
-          selectable: false,
-          evented: false,
-          hasControls: false,
-          hasBorders: false,
-          lockMovementX: true,
-          lockMovementY: true,
-          lockScalingX: true,
-          lockScalingY: true,
-          lockRotation: true,
+      // 🔒 Lock everything
+      selectable: false,
+      evented: false,
+      hasControls: false,
+      hasBorders: false,
+      lockMovementX: true,
+      lockMovementY: true,
+      lockScalingX: true,
+      lockScalingY: true,
+      lockRotation: true,
     } as any);
     canvas.add(text);
     canvas.renderAll();
   };
 
   return (
-    <div className="w-96 bg-zinc-950 h-[50rem]  p-4 flex flex-col  overflow-y-scroll thin-scrollbar sticky top-0">
+    <div className="w-full h-[350px] lg:w-96  lg:h-200 bg-zinc-950 p-4 flex flex-col overflow-y-auto lg:overflow-y-scroll thin-scrollbar sticky top-0 pb-4">
       <div className="mb-4">
         <input
           placeholder="Search icons..."
@@ -164,7 +164,7 @@ function LeftSidebar({ canvas }: Props) {
         setActiveLibrary={setActiveLibrary}
       />
 
-      <div className="flex-1 pr-2 space-y-6">
+      <div className="flex-1 space-y-6">
         {activeLibrary === "all" && (
           <>
             <div>

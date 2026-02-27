@@ -8,9 +8,9 @@ function Navbar({}: Props) {
   };
 
   return (
-    <div className="w-full px-8 py-4 flex items-center justify-between border-b border-white/10 relative z-50">
+    <div className="w-full px-4 md:px-8 py-4 flex items-center justify-between border-b border-white/10 relative z-50 bg-black/50 backdrop-blur-sm">
       <div className="flex items-center gap-2">
-        <span className="font-semibold text-lg">Logo Maker</span>
+        <span className="font-semibold text-base md:text-lg">Logo Maker</span>
       </div>
 
       <div className="hidden md:flex items-center gap-8 text-sm text-gray-400">
@@ -27,7 +27,7 @@ function Navbar({}: Props) {
 
       <button
         onClick={handleCreateLogo}
-        className="px-6 py-2 bg-black text-white font-semibold rounded-lg transition-colors"
+        className="px-4 md:px-6 py-2 bg-black text-white text-sm md:text-base font-semibold rounded-lg transition-colors border border-white/10"
       >
         Create Logo
       </button>
